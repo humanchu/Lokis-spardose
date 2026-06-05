@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lokis Spardose ⚡</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F0F8FF;
+    --surface: #FFFFFF;
+    --surface2: #EEF6FF;
+    --ausgaben: #00B4D8;
+    --ausgaben-light: #CAF0F8;
+    --ausgaben-dark: #0096B7;
+    --sparen: #06D6A0;
+    --sparen-light: #B7F5E8;
+    --sparen-dark: #04B385;
+    --text: #1A2B3C;
+    --text-muted: #7A9BB5;
+    --success: #06D6A0;
+    --danger: #EF476F;
+    --border: #D0E8F2;
+    --shadow: 0 4px 20px rgba(0,180,216,0.12);
+    --shadow-lg: 0 8px 40px rgba(0,180,216,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,180,216,0.14) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -100px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(6,214,160,0.12) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 24px 16px 100px; }
+
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    animation: fadeDown 0.6s ease;
+  }
+  .header-emoji { font-size: 56px; display: block; margin-bottom: 8px; animation: zap 1.5s infinite; }
+  .header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--ausgaben) 0%, var(--sparen) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+  .header p { color: var(--text-muted); font-size: 15px; font-weight: 600; }
+
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 6px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 8px;
+    border: none;
+    background: transparent;
+    border-radius: 16px;
+    cursor: pointer;
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab.active-ausgaben { background: linear-gradient(135deg, var(--ausgaben), #48CAE4); color: white; box-shadow: 0 4px 15px rgba(0,180,216,0.4); }
+  .tab.active-sparen { background: linear-gradient(135deg, var(--sparen), #52E0C4); color: white; box-shadow: 0 4px 15px rgba(6,214,160,0.4); }
+  .tab-icon { font-size: 20px; }
+
+  .card {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .balance-card {
+    background: linear-gradient(135deg, #0096C7 0%, #00B4D8 50%, #48CAE4 100%);
+    color: white;
+    text-align: center;
+    padding: 32px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .balance-card.sparen-theme {
+    background: linear-gradient(135deg, #04B385 0%, #06D6A0 50%, #52E0C4 100%);
+  }
+  .balance-card::before {
+    content: '⚡';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.08;
+    right: -20px; top: -20px;
+  }
+  .balance-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.85; margin-bottom: 8px; }
+  .balance-amount { font-family: 'Baloo 2', cursive; font-size: 52px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .balance-currency { font-size: 28px; margin-right: 4px; }
+  .balance-sub { font-size: 13px; opacity: 0.75; margin-top: 8px; font-weight: 600; }
+
+  .zins-info {
+    background: linear-gradient(135deg, rgba(6,214,160,0.08), rgba(6,214,160,0.03));
+    border: 1px solid var(--sparen-light);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .zins-info-icon { font-size: 24px; }
+  .zins-info-text { flex: 1; }
+  .zins-info-text strong { font-size: 14px; color: var(--sparen-dark); display: block; }
+  .zins-info-text span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .action-btn {
+    padding: 18px 12px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .action-btn:active { transform: scale(0.96); }
+  .btn-einzahlung { background: linear-gradient(135deg, #06D6A0, #52E0C4); color: white; box-shadow: 0 4px 15px rgba(6,214,160,0.35); }
+  .btn-auszahlung { background: linear-gradient(135deg, #EF476F, #FF7096); color: white; box-shadow: 0 4px 15px rgba(239,71,111,0.3); }
+  .btn-zins { background: linear-gradient(135deg, #00B4D8, #48CAE4); color: white; box-shadow: 0 4px 15px rgba(0,180,216,0.35); }
+  .btn-korrektur { background: linear-gradient(135deg, #FFB703, #FFCA40); color: white; box-shadow: 0 4px 15px rgba(255,183,3,0.35); }
+  .action-btn .btn-icon { font-size: 28px; }
+  .action-btn .btn-label { font-size: 14px; }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,43,60,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 32px 32px 0 0;
+    padding: 32px 24px 48px;
+    width: 100%;
+    max-width: 680px;
+    animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 24px; }
+  .modal-title { font-family: 'Baloo 2', cursive; font-size: 24px; font-weight: 800; margin-bottom: 20px; text-align: center; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface2);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--ausgaben); }
+  .form-input.sparen-focus:focus { border-color: var(--sparen); }
+
+  .submit-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-ausgaben { background: linear-gradient(135deg, var(--ausgaben), #48CAE4); box-shadow: 0 6px 20px rgba(0,180,216,0.4); }
+  .submit-sparen { background: linear-gradient(135deg, var(--sparen), #52E0C4); box-shadow: 0 6px 20px rgba(6,214,160,0.4); }
+  .submit-neutral { background: linear-gradient(135deg, #FFB703, #FFCA40); box-shadow: 0 6px 20px rgba(255,183,3,0.4); }
+
+  .cancel-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .transaction-list { display: flex; flex-direction: column; gap: 10px; }
+  .transaction-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 16px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .transaction-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .icon-plus { background: rgba(6,214,160,0.15); }
+  .icon-minus { background: rgba(239,71,111,0.15); }
+  .icon-zins { background: rgba(0,180,216,0.15); }
+  .icon-korrektur { background: rgba(255,183,3,0.15); }
+  .icon-start { background: rgba(0,180,216,0.15); }
+
+  .transaction-info { flex: 1; min-width: 0; }
+  .transaction-desc { font-weight: 700; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .transaction-date { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+  .transaction-amount { font-family: 'Baloo 2', cursive; font-size: 18px; font-weight: 800; flex-shrink: 0; }
+  .amount-plus { color: var(--success); }
+  .amount-minus { color: var(--danger); }
+  .amount-neutral { color: var(--ausgaben); }
+
+  .delete-btn { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.4; padding: 4px; transition: opacity 0.2s; flex-shrink: 0; }
+  .delete-btn:hover { opacity: 0.8; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; font-weight: 600; }
+
+  .toast {
+    position: fixed;
+    top: 24px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--text);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 15px;
+    z-index: 999;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    box-shadow: var(--shadow-lg);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .history-wrapper { max-height: 420px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .history-wrapper::-webkit-scrollbar { display: none; }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes zap {
+    0%, 90%, 100% { transform: rotate(0deg) scale(1); }
+    92% { transform: rotate(-15deg) scale(1.15); }
+    96% { transform: rotate(15deg) scale(1.15); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <span class="header-emoji">⚡</span>
+    <h1>Lokis Spardose</h1>
+    <p>Dein Geld, deine Übersicht</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active-ausgaben" onclick="switchTab('ausgaben')" id="tab-ausgaben">
+      <span class="tab-icon">🔵</span> Ausgaben
+    </button>
+    <button class="tab" onclick="switchTab('sparen')" id="tab-sparen">
+      <span class="tab-icon">🟢</span> Sparen
+    </button>
+  </div>
+
+  <div id="content-ausgaben">
+    <div class="card balance-card" style="animation-delay:0.1s">
+      <div class="balance-label">🔵 Ausgaben-Spardose</div>
+      <div class="balance-amount"><span class="balance-currency">€</span><span id="ausgaben-balance">0.00</span></div>
+      <div class="balance-sub">Frei zum Ausgeben</div>
+    </div>
+
+    <div class="quick-actions" style="animation-delay:0.15s">
+      <button class="action-btn btn-einzahlung" onclick="openModal('ausgaben','einzahlung')">
+        <span class="btn-icon">💰</span>
+        <span class="btn-label">Einzahlung</span>
+      </button>
+      <button class="action-btn btn-auszahlung" onclick="openModal('ausgaben','auszahlung')">
+        <span class="btn-icon">🛒</span>
+        <span class="btn-label">Ausgabe</span>
+      </button>
+      <button class="action-btn btn-korrektur" onclick="openModal('ausgaben','korrektur')" style="grid-column:1/-1">
+        <span class="btn-icon">✏️</span>
+        <span class="btn-label">Korrektur / Startbetrag</span>
+      </button>
+    </div>
+
+    <div class="card" style="animation-delay:0.2s">
+      <div class="section-title">📋 Verlauf</div>
+      <div class="history-wrapper">
+        <div class="transaction-list" id="ausgaben-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="content-sparen" style="display:none">
+    <div class="card balance-card sparen-theme" style="animation-delay:0.1s">
+      <div class="balance-label">🟢 Spar-Spardose</div>
+      <div class="balance-amount"><span class="balance-currency">€</span><span id="sparen-balance">0.00</span></div>
+      <div class="balance-sub">Langfristiges Sparen</div>
+    </div>
+
+    <div class="zins-info">
+      <span class="zins-info-icon">⚡</span>
+      <div class="zins-info-text">
+        <strong>Zinssatz: <span id="zins-display">wird beim ersten Zinseintrag gesetzt</span></strong>
+        <span>Zinsen werden monatlich manuell eingetragen</span>
+      </div>
+    </div>
+
+    <div class="quick-actions" style="animation-delay:0.15s">
+      <button class="action-btn btn-einzahlung" onclick="openModal('sparen','einzahlung')">
+        <span class="btn-icon">💰</span>
+        <span class="btn-label">Einzahlung</span>
+      </button>
+      <button class="action-btn btn-auszahlung" onclick="openModal('sparen','auszahlung')">
+        <span class="btn-icon">💸</span>
+        <span class="btn-label">Auszahlung</span>
+      </button>
+      <button class="action-btn btn-zins" onclick="openModal('sparen','zins')">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-label">Zinsen buchen</span>
+      </button>
+      <button class="action-btn btn-korrektur" onclick="openModal('sparen','korrektur')">
+        <span class="btn-icon">✏️</span>
+        <span class="btn-label">Korrektur</span>
+      </button>
+    </div>
+
+    <div class="card" style="animation-delay:0.2s">
+      <div class="section-title">📋 Verlauf</div>
+      <div class="history-wrapper">
+        <div class="transaction-list" id="sparen-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Einzahlung</div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'loki_spardose_v2';
+let state = {
+  ausgaben: { balance: 0, transactions: [] },
+  sparen:   { balance: 0, transactions: [], zinssatz: null }
+};
+let currentTab = 'ausgaben';
+let currentModal = null;
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function load() {
+  try { const d = localStorage.getItem(STORAGE_KEY); if (d) state = JSON.parse(d); } catch(e) {}
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('content-ausgaben').style.display = tab === 'ausgaben' ? 'block' : 'none';
+  document.getElementById('content-sparen').style.display = tab === 'sparen' ? 'block' : 'none';
+  document.getElementById('tab-ausgaben').className = 'tab ' + (tab === 'ausgaben' ? 'active-ausgaben' : '');
+  document.getElementById('tab-sparen').className = 'tab ' + (tab === 'sparen' ? 'active-sparen' : '');
+  render();
+}
+
+function fmt(n) { return Math.abs(n).toFixed(2); }
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) + ', ' +
+         d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+}
+
+function render() {
+  document.getElementById('ausgaben-balance').textContent = state.ausgaben.balance.toFixed(2);
+  document.getElementById('sparen-balance').textContent = state.sparen.balance.toFixed(2);
+  if (state.sparen.zinssatz !== null) {
+    document.getElementById('zins-display').textContent = state.sparen.zinssatz + '% pro Jahr';
+  }
+  renderList('ausgaben');
+  renderList('sparen');
+}
+
+function renderList(type) {
+  const list = document.getElementById(type + '-list');
+  const txs = state[type].transactions;
+  if (txs.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🐷</div><p>Noch keine Einträge – leg los!</p></div>`;
+    return;
+  }
+  list.innerHTML = txs.slice().reverse().map((tx, i) => {
+    const realIdx = txs.length - 1 - i;
+    const iconClass = tx.type === 'plus' ? 'icon-plus' : tx.type === 'minus' ? 'icon-minus' : tx.type === 'zins' ? 'icon-zins' : tx.type === 'start' ? 'icon-start' : 'icon-korrektur';
+    const icon = tx.type === 'plus' ? '💰' : tx.type === 'minus' ? '🛒' : tx.type === 'zins' ? '⚡' : tx.type === 'start' ? '🏁' : '✏️';
+    const amountClass = tx.delta > 0 ? 'amount-plus' : tx.delta < 0 ? 'amount-minus' : 'amount-neutral';
+    const amountSign = tx.delta > 0 ? '+' : tx.delta < 0 ? '−' : '';
+    return `
+      <div class="transaction-item">
+        <div class="transaction-icon ${iconClass}">${icon}</div>
+        <div class="transaction-info">
+          <div class="transaction-desc">${escHtml(tx.desc)}</div>
+          <div class="transaction-date">${fmtDate(tx.ts)}</div>
+        </div>
+        <div class="transaction-amount ${amountClass}">${amountSign} € ${fmt(tx.delta)}</div>
+        <button class="delete-btn" onclick="deleteTx('${type}',${realIdx})">🗑️</button>
+      </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addTransaction(type, delta, desc, txType) {
+  state[type].balance = Math.round((state[type].balance + delta) * 100) / 100;
+  state[type].transactions.push({ ts: Date.now(), delta, desc, type: txType });
+  save();
+  render();
+}
+
+function deleteTx(type, idx) {
+  const tx = state[type].transactions[idx];
+  if (!confirm('Diesen Eintrag wirklich löschen?\n"' + tx.desc + '"')) return;
+  state[type].balance = Math.round((state[type].balance - tx.delta) * 100) / 100;
+  state[type].transactions.splice(idx, 1);
+  save();
+  render();
+  showToast('🗑️ Eintrag gelöscht');
+}
+
+function openModal(type, action) {
+  currentModal = { type, action };
+  const title = document.getElementById('modal-title');
+  const body = document.getElementById('modal-body');
+  const isSpar = type === 'sparen';
+  const focusClass = isSpar ? 'sparen-focus' : '';
+  const submitClass = isSpar ? 'submit-sparen' : 'submit-ausgaben';
+
+  if (action === 'einzahlung') {
+    title.textContent = '💰 Einzahlung';
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Betrag (€)</label>
+        <input class="form-input ${focusClass}" id="m-betrag" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Beschreibung</label>
+        <input class="form-input ${focusClass}" id="m-desc" type="text" placeholder="z.B. Taschengeld, Geschenk ...">
+      </div>
+      <button class="submit-btn ${submitClass}" onclick="submitEinzahlung()">💰 Einzahlen</button>
+      <button class="cancel-btn" onclick="closeModal()">Abbrechen</button>`;
+  } else if (action === 'auszahlung') {
+    title.textContent = isSpar ? '💸 Auszahlung' : '🛒 Ausgabe';
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Betrag (€)</label>
+        <input class="form-input ${focusClass}" id="m-betrag" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Beschreibung</label>
+        <input class="form-input ${focusClass}" id="m-desc" type="text" placeholder="z.B. Spielzeug, Game ...">
+      </div>
+      <button class="submit-btn ${submitClass}" onclick="submitAuszahlung()">🛒 Ausgabe buchen</button>
+      <button class="cancel-btn" onclick="closeModal()">Abbrechen</button>`;
+  } else if (action === 'zins') {
+    title.textContent = '⚡ Zinsen buchen';
+    const rate = state.sparen.zinssatz || '';
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Zinssatz pro Jahr (%)</label>
+        <input class="form-input sparen-focus" id="m-zinssatz" type="number" inputmode="decimal" min="0" step="0.1" placeholder="z.B. 2.5" value="${rate}" autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zinsbetrag (€)</label>
+        <input class="form-input sparen-focus" id="m-betrag" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monat</label>
+        <input class="form-input sparen-focus" id="m-desc" type="text" placeholder="z.B. Mai 2025">
+      </div>
+      <button class="submit-btn submit-sparen" onclick="submitZins()">⚡ Zinsen gutschreiben</button>
+      <button class="cancel-btn" onclick="closeModal()">Abbrechen</button>`;
+  } else if (action === 'korrektur') {
+    title.textContent = '✏️ Korrektur / Startbetrag';
+    body.innerHTML = `
+      <p style="font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:16px;text-align:center;">Setze den Saldo direkt auf einen bestimmten Betrag (z.B. Anfangsstand oder Korrektur).</p>
+      <div class="form-group">
+        <label class="form-label">Neuer Saldo (€)</label>
+        <input class="form-input ${focusClass}" id="m-betrag" type="number" inputmode="decimal" step="0.01" placeholder="${state[type].balance.toFixed(2)}" autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Grund</label>
+        <input class="form-input ${focusClass}" id="m-desc" type="text" placeholder="z.B. Startbetrag, Korrektur ...">
+      </div>
+      <button class="submit-btn submit-neutral" onclick="submitKorrektur()">✏️ Saldo korrigieren</button>
+      <button class="cancel-btn" onclick="closeModal()">Abbrechen</button>`;
+  }
+
+  document.getElementById('modal-overlay').classList.add('show');
+  setTimeout(() => document.querySelector('.form-input') && document.querySelector('.form-input').focus(), 350);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  currentModal = null;
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function getVal(id) { return document.getElementById(id)?.value.trim() || ''; }
+
+function submitEinzahlung() {
+  const betrag = parseFloat(getVal('m-betrag'));
+  const desc = getVal('m-desc') || 'Einzahlung';
+  if (!betrag || betrag <= 0) { alert('Bitte einen gültigen Betrag eingeben.'); return; }
+  addTransaction(currentModal.type, betrag, desc, 'plus');
+  closeModal();
+  showToast('✅ + € ' + betrag.toFixed(2) + ' eingetragen!');
+}
+
+function submitAuszahlung() {
+  const betrag = parseFloat(getVal('m-betrag'));
+  const desc = getVal('m-desc') || 'Ausgabe';
+  if (!betrag || betrag <= 0) { alert('Bitte einen gültigen Betrag eingeben.'); return; }
+  if (betrag > state[currentModal.type].balance) {
+    if (!confirm('Achtung: Du hast nur € ' + state[currentModal.type].balance.toFixed(2) + '. Trotzdem buchen?')) return;
+  }
+  addTransaction(currentModal.type, -betrag, desc, 'minus');
+  closeModal();
+  showToast('🛒 − € ' + betrag.toFixed(2) + ' gebucht!');
+}
+
+function submitZins() {
+  const zinssatz = parseFloat(getVal('m-zinssatz'));
+  const betrag = parseFloat(getVal('m-betrag'));
+  const monat = getVal('m-desc') || 'Zinsen';
+  if (zinssatz > 0) state.sparen.zinssatz = zinssatz;
+  if (!betrag || betrag <= 0) { alert('Bitte einen Zinsbetrag eingeben.'); return; }
+  addTransaction('sparen', betrag, 'Zinsen ' + monat + (zinssatz ? ' (' + zinssatz + '% p.a.)' : ''), 'zins');
+  closeModal();
+  showToast('⚡ € ' + betrag.toFixed(2) + ' Zinsen gutgeschrieben!');
+}
+
+function submitKorrektur() {
+  const neuerSaldo = parseFloat(getVal('m-betrag'));
+  const desc = getVal('m-desc') || 'Korrektur';
+  if (isNaN(neuerSaldo)) { alert('Bitte einen Betrag eingeben.'); return; }
+  const delta = Math.round((neuerSaldo - state[currentModal.type].balance) * 100) / 100;
+  const txType = state[currentModal.type].transactions.length === 0 ? 'start' : 'korrektur';
+  addTransaction(currentModal.type, delta, desc, txType);
+  closeModal();
+  showToast('✏️ Saldo auf € ' + neuerSaldo.toFixed(2) + ' gesetzt!');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+load();
+render();
+</script>
+</body>
+</html>
